@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --canvas-size: 600px;
+        }
+
+        html {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+        }
+
+        canvas {
+            width: var(--canvas-size);
+            height: var(--canvas-size);
+        }
+
+        img {
+            width: var(--canvas-size);
+            height: var(--canvas-size);
+        }
+
+        #settings-div {
+            display: grid;
+            grid-template-columns: max-content min-content min-content;
+        }
+
+        /* #settings-div section {
+            grid-column: span 3;
+            grid-row: span 3;
+        }  */
+
+        #color-div {
+            display: none;
+            position: absolute;
+            z-index: 2;
+            background-color: white;
+            border: 2px solid #111;
+            padding: 5px;
+            border-radius: 3px;
+            box-shadow: 2px 2px 4px rgba(2, 2, 2, 0.5);
+        }
+
+        #img-choose {
+            display: none;
+            position: absolute;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid black;
+            flex-direction: row;
+            justify-content: center;
+            align-content: center;
+            flex-wrap: wrap;
+        }
+
+        #img-choose img {
+            box-sizing: border-box;
+            border: 2px solid black;
+            max-width: 150px;
+            max-height: 150px;
+            margin-bottom: 5px;
+        }
+
+        #img-choose img:hover {
+            cursor: pointer;
+        }
+
+        #img-choose img:not(:last-of-type) {
+            margin-right: 5px;
+        }
+    </style>
+    <title>Pixelate</title>
+    <script src="pixelate.js" defer></script>
+</head>
+
+<body>
+    <div id="settings-div">
+        <!-- Rows -->
+        <label for="rows-input">Rows: </label>
+        <input type="range" min="5" max="150" value="20" id="rows-range">
+        <input type="number" id="rows-input" min="5" max="150">
+        <!-- Margin -->
+        <label for="margin-range">Margin: </label>
+        <input type="range" min="0" max="30" value="1" id="margin-range">
+        <input type="number" id="margin-input" min="0" max="30">
+        <!-- Animation -->
+        <section>
+            <p>Animation Mode</p>
+            <div>
+                <input type="radio" id="rows" name="animation" value="rows" checked>
+                <label for="rows">Rows</label>
+            </div>
+            <div>
+                <input type="radio" id="randXrow" name="animation" value="randXrow">
+                <label for="randXrow">Trickle down</label>
+            </div>
+            <div>
+                <input type="radio" id="totalRandom" name="animation" value="totalRandom">
+                <label for="totalRandom">Total Random</label>
+            </div>
+            <div>
+                <input type="radio" id="eachCell" name="animation" value="eachCell">
+                <label for="eachCell">Each cell</label>
+            </div>
+            <div>
+                <input type="radio" id="justDraw" name="animation" value="justDraw">
+                <label for="justDraw">Just Draw</label>
+            </div>
+        </section>
+        <!-- Color mode -->
+        <section>
+            <p>Color Mode</p>
+            <div>
+                <input type="radio" id="firstColor" name="colorMode" value="firstColor" checked>
+                <label for="firstColor">First Color</label>
+            </div>
+            <div>
+                <input type="radio" id="avgColor" name="colorMode" value="avgColor">
+                <label for="avgColor">Avg of first+last</label>
+            </div>
+        </section>
+        <button>Pixlate</button>
+    </div>
+
+    <canvas id="original">
+
+    </canvas>
+    <canvas id="pixelated">
+
+    </canvas>
+    <div id="color-div"></div>
+
+    <div id="img-choose">
+        <img width="250" height="250" src="img.jpg">
+        <img width="250" height="250" src="img2.jpg">
+    </div>
+</body>
+
+</html>
