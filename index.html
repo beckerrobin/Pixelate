@@ -77,6 +77,9 @@
         #img-choose img:not(:last-of-type) {
             margin-right: 5px;
         }
+        .title{
+            margin-bottom: 1px;
+        }
     </style>
     <title>Pixelate</title>
     <script src="pixelate.js" defer></script>
@@ -94,22 +97,22 @@
         <input type="number" id="margin-input" min="0" max="30">
         <!-- Animation -->
         <section>
-            <p>Animation Mode</p>
+            <p class="title">Animation Mode</p>
             <div>
                 <input type="radio" id="rows" name="animation" value="rows" checked>
                 <label for="rows">Rows</label>
             </div>
             <div>
                 <input type="radio" id="randXrow" name="animation" value="randXrow">
-                <label for="randXrow">Trickle down</label>
+                <label for="randXrow">Trickle Down</label>
             </div>
             <div>
                 <input type="radio" id="totalRandom" name="animation" value="totalRandom">
-                <label for="totalRandom">Total Random</label>
+                <label for="totalRandom">Random</label>
             </div>
             <div>
                 <input type="radio" id="eachCell" name="animation" value="eachCell">
-                <label for="eachCell">Each cell</label>
+                <label for="eachCell">Each Cell (Slow)</label>
             </div>
             <div>
                 <input type="radio" id="justDraw" name="animation" value="justDraw">
@@ -118,7 +121,7 @@
         </section>
         <!-- Color mode -->
         <section>
-            <p>Color Mode</p>
+            <p class="title">Color Mode</p>
             <div>
                 <input type="radio" id="firstColor" name="colorMode" value="firstColor" checked>
                 <label for="firstColor">First Color</label>
