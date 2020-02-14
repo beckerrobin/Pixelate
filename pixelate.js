@@ -1,3 +1,5 @@
+const canvasSize = getComputedStyle(document.documentElement).getPropertyValue('--canvas-size').split("px")[0].trim();
+
 // Settings
 const rowSlider = document.querySelector("#rows-range");
 const rowInput = document.querySelector("#rows-input");
@@ -5,6 +7,10 @@ const marginSlider = document.querySelector("#margin-range");
 const marginInput = document.querySelector("#margin-input");
 function copyValue(from, to) {
     to.value = from.value;
+    rows = Number(rowSlider.value)
+    pixelMargin = Number(marginSlider.value)
+    pixelSize = ((canvasSize - pixelMargin * rows) / rows)
+    if (pixelSize < 1) pixelSize = 1;
 }
 rowSlider.oninput = () => {
     copyValue(rowSlider, rowInput);
@@ -25,11 +31,12 @@ marginSlider.oninput();
 var rows // n of rows
 var pixelSize // size of each "pixel"
 var pixelMargin // whitespace between pixels
-var pixelArray = new Array()
 
+// Original canvas
 const originalCanvas = document.querySelector("#original"); // left side canvas
 const original = originalCanvas.getContext("2d"); // left side canvas
 
+// Draw Canvas
 const canvas = document.querySelector("#pixelated");
 canvas.onmousemove = (event) => { canvasMouseOver(event); }
 canvas.onmouseout = () => {
@@ -37,7 +44,9 @@ canvas.onmouseout = () => {
 }
 const context = canvas.getContext("2d");
 
-const canvasSize = getComputedStyle(document.documentElement).getPropertyValue('--canvas-size').split("px")[0].trim();
+// Div Canvas 
+const mainDiv = document.querySelector("#div-canvas")
+
 Array.from(document.querySelectorAll("canvas")).forEach(c => {
     c.width = canvasSize;
     c.height = canvasSize;
@@ -81,12 +90,9 @@ function pixelate() {
     setTimeout(() => {
         context.clearRect(0, 0, canvas.width, canvas.height)
 
-        rows = Number(rowSlider.value)
-        pixelMargin = Number(marginSlider.value)
-        pixelSize = ((canvasSize - pixelMargin * rows) / rows)
-
         const amountOfCells = Math.ceil(canvasSize / (pixelSize + pixelMargin))
         const selectedAnim = document.querySelector('input[name="animation"]:checked').value;
+        calculateDivBox(amountOfCells)
         if (selectedAnim == "randXrow") {
             drawRandomX(amountOfCells)
         } else if (selectedAnim == "eachCell") {
@@ -96,9 +102,33 @@ function pixelate() {
         } else if (selectedAnim == "rows") {
             drawRows(amountOfCells, 0)
         } else {
+            var t0 = performance.now();
             justDraw(amountOfCells)
+            var t1 = performance.now();
+            divJustDraw(amountOfCells)
+            var t2 = performance.now();
+            console.log("Canvas: " + (t1-t0) + "ms", "Pixelsize: " + pixelSize, "Pixelmargin: " + pixelMargin)
+            console.log("Div: " + (t2-t1) + "ms", "Pixelsize: " + pixelSize, "Pixelmargin: " + pixelMargin)
         }
-    }, 5)
+    }, 1)
+}
+
+function calculateDivBox(amountOfCells) {
+
+    mainDiv.innerHTML = null
+    mainDiv.style['grid-template'] = "repeat(" + amountOfCells + ", " + pixelSize + "px) / repeat(" + amountOfCells + ", " + pixelSize + "px)"
+    mainDiv.style['gap'] = pixelMargin + "px"
+
+    for (let y = 0; y < amountOfCells; y++) {
+        for (let x = 0; x < amountOfCells; x++) {
+            const cell = document.createElement("div")
+            cell.className = "div-cell"
+            cell.id = "cell_" + x + "_" + y
+            cell.style.width = pixelSize + "px"
+            cell.style.height = pixelSize + "px"
+            mainDiv.appendChild(cell)
+        }
+    }
 }
 
 function drawLoading() {
@@ -107,6 +137,16 @@ function drawLoading() {
     context.fillStyle = "black"
     context.font = "32px arial"
     context.fillText("Loading...", canvas.width / 2, canvas.height / 2);
+}
+
+function divJustDraw(amountOfCells) {
+    for (let y = 0; y < amountOfCells; y++) {
+        for (let x = 0; x < amountOfCells; x++) {
+            // setTimeout(() => {
+            drawDivSquare(x, y);
+            // }, 1);
+        }
+    }
 }
 
 function justDraw(amountOfCells) {
@@ -147,6 +187,7 @@ function drawEachCell(amountOfCells) {
             clearInterval(id)
     }, 1);
 }
+
 function drawRandomX(amountOfCells) {
     var lineArr = []
     for (let i = 0; i < amountOfCells; i++) {
@@ -180,25 +221,42 @@ function drawTotalRandom(amountOfCells) {
     }
 }
 
-function drawSquare(x, y) {
+function drawDivSquare(x, y) {
     // Get first box-pixel-color
     const imageData = original.getImageData(x * (pixelMargin + pixelSize), y * (pixelMargin + pixelSize), pixelSize, pixelSize);
-    const pixels = imageData.data;    
+    const pixels = imageData.data;
     const firstPxl = pixels.slice(0, 3)
 
     const colorMode = document.querySelector("input[name='colorMode']:checked").value
     if (colorMode == "firstColor") {
         var avgColors = firstPxl // Just use first pixel instead of avg of first+last
-        console.log(colorMode)
     } else {
-        console.log(colorMode)
+        const lastPxl = pixels.slice(-4)
+        var avgColors = [(firstPxl[0] + lastPxl[0]) / 2, (firstPxl[1] + lastPxl[1]) / 2, (firstPxl[2] + lastPxl[2]) / 2,]
+    }
+
+    // Draw div
+    const div = document.querySelector("#cell_" + x + "_" + y)
+    const colorString = "rgb(" + avgColors.join(",") + ")"
+    div.style.backgroundColor = colorString
+}
+
+function drawSquare(x, y) {
+    // Get first box-pixel-color
+    const imageData = original.getImageData(x * (pixelMargin + pixelSize), y * (pixelMargin + pixelSize), pixelSize, pixelSize);
+    const pixels = imageData.data;
+    const firstPxl = pixels.slice(0, 3)
+
+    const colorMode = document.querySelector("input[name='colorMode']:checked").value
+    if (colorMode == "firstColor") {
+        var avgColors = firstPxl // Just use first pixel instead of avg of first+last
+    } else {
         const lastPxl = pixels.slice(-4)
         var avgColors = [(firstPxl[0] + lastPxl[0]) / 2, (firstPxl[1] + lastPxl[1]) / 2, (firstPxl[2] + lastPxl[2]) / 2,]
     }
 
     // Draw rectangles
     const colorString = "rgb(" + avgColors.join(",") + ")"
-    pixelArray.push({ "x": x, "y": y, "color": colorString })
     context.fillStyle = colorString;
     context.fillRect(x * (pixelMargin + pixelSize), y * (pixelMargin + pixelSize), pixelSize, pixelSize)
 }
@@ -210,7 +268,6 @@ function canvasMouseOver(event) {
     const yPos = event.clientY - rect.top
     const pixel = context.getImageData(xPos, yPos, 1, 1).data.slice(0, 3)
     const colorString = "rgb(" + pixel.join(", ") + ")"
-    // console.log(pixel.data)
 
     // Show div at mouse
     if (pixel.filter(p => p == 0).length != 3) {

@@ -70,15 +70,34 @@
             margin-bottom: 5px;
         }
 
-        #img-choose img:hover, #original:hover {
+        #img-choose img:hover,
+        #original:hover {
             cursor: pointer;
         }
 
         #img-choose img:not(:last-of-type) {
             margin-right: 5px;
         }
-        .title{
+
+        .title {
             margin-bottom: 1px;
+        }
+
+        #div-canvas {
+            width: var(--canvas-size);
+            height: var(--canvas-size);
+            display: inline-block;
+            box-sizing: border-box;
+            display: grid;
+        }
+        .div-cell {
+            background-color: #bbb;
+            box-sizing: border-box;
+        }
+        #canvases {
+            display: flex;
+            flex-direction: row;
+            gap:1px;
         }
     </style>
     <title>Pixelate</title>
@@ -134,12 +153,16 @@
         <button>Pixelate</button>
     </div>
 
-    <canvas id="original">
+    <section id="canvases">
+        <canvas id="original">
+        </canvas>
+        <canvas id="pixelated">
+        </canvas>
+        <div style="display: inline-block;">
+            <div id="div-canvas"></div>
+        </div>
+    </section>
 
-    </canvas>
-    <canvas id="pixelated">
-
-    </canvas>
     <div id="color-div"></div>
 
     <div id="img-choose">
