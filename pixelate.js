@@ -32,20 +32,17 @@ var rows // n of rows
 var pixelSize // size of each "pixel"
 var pixelMargin // whitespace between pixels
 
-// Original canvas
-const originalCanvas = document.querySelector("#original"); // left side canvas
-const original = originalCanvas.getContext("2d"); // left side canvas
+const originalCanvas = document.querySelector("#original"); // Original canvas
+const original = originalCanvas.getContext("2d");
 
-// Draw Canvas
-const canvas = document.querySelector("#pixelated");
+const canvas = document.querySelector("#pixelated"); // Draw Canvas
+const context = canvas.getContext("2d");
 canvas.onmousemove = (event) => { canvasMouseOver(event); }
 canvas.onmouseout = () => {
     document.querySelector("#color-div").style.display = "none"
 }
-const context = canvas.getContext("2d");
 
-// Div Canvas 
-const mainDiv = document.querySelector("#div-canvas")
+const mainDiv = document.querySelector("#div-canvas") // Div "Canvas"
 
 Array.from(document.querySelectorAll("canvas")).forEach(c => {
     c.width = canvasSize;
@@ -53,7 +50,7 @@ Array.from(document.querySelectorAll("canvas")).forEach(c => {
 });
 
 const image = new Image();
-image.src = "img2.jpg";
+image.src = "img.jpg";
 image.onload = () => {
     original.drawImage(image, 0, 0, canvasSize, canvasSize);
 }
@@ -93,28 +90,32 @@ function pixelate() {
         const amountOfCells = Math.ceil(canvasSize / (pixelSize + pixelMargin))
         const selectedAnim = document.querySelector('input[name="animation"]:checked').value;
         calculateDivBox(amountOfCells)
+
         if (selectedAnim == "randXrow") {
-            drawRandomX(amountOfCells)
+            drawTrickleDown(amountOfCells)
+            divDrawTrickleDown(amountOfCells)
         } else if (selectedAnim == "eachCell") {
             drawEachCell(amountOfCells)
+            divDrawEachCell(amountOfCells)
         } else if (selectedAnim == "totalRandom") {
             drawTotalRandom(amountOfCells)
+            divDrawTotalRandom(amountOfCells)
         } else if (selectedAnim == "rows") {
             drawRows(amountOfCells, 0)
+            divDrawRows(amountOfCells, 0)
         } else {
             var t0 = performance.now();
             justDraw(amountOfCells)
             var t1 = performance.now();
             divJustDraw(amountOfCells)
             var t2 = performance.now();
-            console.log("Canvas: " + (t1-t0) + "ms", "Pixelsize: " + pixelSize, "Pixelmargin: " + pixelMargin)
-            console.log("Div: " + (t2-t1) + "ms", "Pixelsize: " + pixelSize, "Pixelmargin: " + pixelMargin)
+            console.log("Canvas: " + (t1 - t0) + "ms", "Pixelsize: " + pixelSize, "Pixelmargin: " + pixelMargin)
+            console.log("Div: " + (t2 - t1) + "ms", "Pixelsize: " + pixelSize, "Pixelmargin: " + pixelMargin)
         }
     }, 1)
 }
 
 function calculateDivBox(amountOfCells) {
-
     mainDiv.innerHTML = null
     mainDiv.style['grid-template'] = "repeat(" + amountOfCells + ", " + pixelSize + "px) / repeat(" + amountOfCells + ", " + pixelSize + "px)"
     mainDiv.style['gap'] = pixelMargin + "px"
@@ -142,9 +143,7 @@ function drawLoading() {
 function divJustDraw(amountOfCells) {
     for (let y = 0; y < amountOfCells; y++) {
         for (let x = 0; x < amountOfCells; x++) {
-            // setTimeout(() => {
             drawDivSquare(x, y);
-            // }, 1);
         }
     }
 }
@@ -152,24 +151,47 @@ function divJustDraw(amountOfCells) {
 function justDraw(amountOfCells) {
     for (let y = 0; y < amountOfCells; y++) {
         for (let x = 0; x < amountOfCells; x++) {
-            // setTimeout(() => {
             drawSquare(x, y);
-            // }, 1);
         }
     }
 }
 
+function divDrawRows(amountOfCells, y) {
+    setTimeout(() => {
+        for (let x = 0; x < amountOfCells; x++) {
+            drawDivSquare(x, y)
+        }
+        if (y < amountOfCells - 1)
+            divDrawRows(amountOfCells, y + 1)
+    }, 1);
+}
 function drawRows(amountOfCells, y) {
     setTimeout(() => {
-        // console.log(y)
         for (let x = 0; x < amountOfCells; x++) {
             drawSquare(x, y)
         }
-        if (y < amountOfCells)
+        if (y < amountOfCells - 1)
             drawRows(amountOfCells, y + 1)
     }, 1);
 }
 
+function divDrawEachCell(amountOfCells) {
+    var cells = new Array()
+    for (let y = 0; y < amountOfCells; y++) {
+        for (let x = 0; x < amountOfCells; x++) {
+            cells.push([x, y])
+        }
+    }
+
+    const id = setInterval(() => {
+        if (cells.length > 0) {
+            const cell = cells.shift()
+            drawDivSquare(cell[0], cell[1])
+        }
+        else
+            clearInterval(id)
+    }, 1);
+}
 function drawEachCell(amountOfCells) {
     var cells = new Array()
     for (let y = 0; y < amountOfCells; y++) {
@@ -188,7 +210,29 @@ function drawEachCell(amountOfCells) {
     }, 1);
 }
 
-function drawRandomX(amountOfCells) {
+function divDrawTrickleDown(amountOfCells) {
+    var lineArr = []
+    for (let i = 0; i < amountOfCells; i++) {
+        lineArr.push(i)
+    }
+    const rows = Array.from(lineArr)
+
+    const id = setInterval(() => {
+        const len = rows.length
+        if (len > 0) {
+            const row = Array.from(lineArr)
+            row.forEach(x => {
+                setTimeout(() => {
+                    drawDivSquare(x, (lineArr.length - len));
+                }, Math.floor(Math.random() * 500));
+            });
+            rows.pop()
+        }
+        else
+            clearInterval(id)
+    }, 30);
+}
+function drawTrickleDown(amountOfCells) {
     var lineArr = []
     for (let i = 0; i < amountOfCells; i++) {
         lineArr.push(i)
@@ -211,12 +255,21 @@ function drawRandomX(amountOfCells) {
     }, 30);
 }
 
+function divDrawTotalRandom(amountOfCells) {
+    for (let y = 0; y < amountOfCells; y++) {
+        for (let x = 0; x < amountOfCells; x++) {
+            setTimeout(() => {
+                drawDivSquare(x, y);
+            }, Math.floor(Math.random() * (4000 / amountOfCells)));
+        }
+    }
+}
 function drawTotalRandom(amountOfCells) {
     for (let y = 0; y < amountOfCells; y++) {
         for (let x = 0; x < amountOfCells; x++) {
             setTimeout(() => {
                 drawSquare(x, y);
-            }, Math.floor(Math.random() * 1000));
+            }, Math.floor(Math.random() * (4000 / amountOfCells)));
         }
     }
 }
