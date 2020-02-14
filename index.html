@@ -90,13 +90,15 @@
             /* box-sizing: border-box; */
             display: grid;
         }
+
         .div-cell {
             box-sizing: border-box;
         }
+
         #canvases {
             display: flex;
             flex-direction: row;
-            gap:3px;
+            gap: 3px;
         }
     </style>
     <title>Pixelate</title>
@@ -153,11 +155,20 @@
     </div>
 
     <section id="canvases">
-        <canvas id="original">
+        <div>
+            <p class="title">Original</p>
+            <canvas id="original">
+        </div>
         </canvas>
-        <canvas id="pixelated">
-        </canvas>
+
+        <div>
+            <p class="title">Canvas</p>
+            <canvas id="pixelated">
+            </canvas>
+        </div>
+
         <div style="display: inline-block;">
+            <p class="title">Div-tags</p>
             <div id="div-canvas"></div>
         </div>
     </section>
