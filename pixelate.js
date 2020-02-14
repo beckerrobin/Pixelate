@@ -260,7 +260,7 @@ function divDrawTotalRandom(amountOfCells) {
         for (let x = 0; x < amountOfCells; x++) {
             setTimeout(() => {
                 drawDivSquare(x, y);
-            }, Math.floor(Math.random() * (4000 / amountOfCells)));
+            }, Math.floor(Math.random() * (1000 / amountOfCells)));
         }
     }
 }
@@ -269,7 +269,7 @@ function drawTotalRandom(amountOfCells) {
         for (let x = 0; x < amountOfCells; x++) {
             setTimeout(() => {
                 drawSquare(x, y);
-            }, Math.floor(Math.random() * (4000 / amountOfCells)));
+            }, Math.floor(Math.random() * (1000 / amountOfCells)));
         }
     }
 }
